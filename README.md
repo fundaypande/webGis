@@ -1,2 +1,4 @@
 # webGis
-Menampilkan peta tematik dari file shp yang dibuat di Quantum GIS
+Shown the map from shp file created by Quantum GIS to the webGis
+
+The shp file will stored to postgreSql and showing with Leaflet js
