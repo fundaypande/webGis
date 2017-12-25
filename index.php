@@ -14,10 +14,15 @@
 
   <!--memanggil plugin pencarian, Json dan Extend all-->
   <link rel="stylesheet" href="leaflet/leaflet-search-master/src/leaflet-search.css"/>
-<link rel="stylesheet" href="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.css" />
-<script src="leaflet/leaflet-ajax/dist/leaflet.ajax.js"></script>
-<script src="leaflet/leaflet-search-master/src/leaflet-search.js"></script>
-<script src="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.js"></script>
+  <link rel="stylesheet" href="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.css" />
+  <script src="leaflet/leaflet-ajax/dist/leaflet.ajax.js"></script>
+  <script src="leaflet/leaflet-search-master/src/leaflet-search.js"></script>
+  <script src="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.js"></script>
+
+<!-- memanggil awesome marker -->
+   <link rel="stylesheet" href="leaflet/font-awesome/css/font-awesome.min.css">
+   <link rel="stylesheet" href="leaflet/awesome-marker/dist/leaflet.awesome-markers.css">
+   <script src="leaflet/awesome-marker/dist/leaflet.awesome-markers.js"></script>
 
 
   <meta charset="utf-8"/>
@@ -49,7 +54,7 @@
         return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
       },
       onEachFeature: function(feature, layer){
-      layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
+      //layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
       that = this; // perintah agar menghasilkan efek hover pada objek layer
             layer.on('mouseover', function (e) {
                 this.setStyle({
@@ -58,6 +63,10 @@
                 dashArray: '',
                 fillOpacity: 0.8
                 });
+            layer.on('click', function(e){
+              layer.bindPopup("<center>" + feature.properties.nama + "</center> (" + e.latlng.lat + ", " + e.latlng.lng +")");
+              //alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+            });
 
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
@@ -72,6 +81,20 @@
     }
     }).addTo(map);
 
+    // var mama = function(){
+    //   L.marker([-77.76758238272801, 146.95312500000003]).addTo(map)
+    //         .bindPopup("<b>Wilujeng sumping!</b> Ieu teh Kota Bandung.");
+    //   L.marker([-66.23145747862573, 94.921875]).addTo(map)
+    //         .bindPopup("Kota Bandung");
+    // }
+    // mama();
+    var mama = [
+      L.marker([-77.76758238272801, 146.95312500000003]).addTo(map)
+            .bindPopup("<b>Wilujeng sumping!</b> Ieu teh Kota Bandung."),
+      L.marker([-66.23145747862573, 94.921875]).addTo(map)
+            .bindPopup("Kota Bandung")
+    ];
+
     var layer_point = new L.GeoJSON.AJAX("layer/request_point.php",{ // sekarang perintahnya diawali dengan variabel
       style: function(feature){
       var fillColor, // ini style yang akan digunakan
@@ -81,7 +104,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
-        layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
+        layer.bindPopup("<center>" + feature.properties.nama + "</center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
                   this.setStyle({
@@ -108,13 +131,19 @@
         iconUrl: 'img/hospital.png',
         shadowUrl: 'leaflet/lf/images/marker-shadow.png',
 
-        iconSize:     [20, 60], // size of the icon
+        iconSize:     [20, 50], // size of the icon
         shadowSize:   [15, 40], // size of the shadow
         iconAnchor:   [15, 60], // point of the icon which will correspond to marker's location
         shadowAnchor: [4, 62],  // the same for the shadow
         popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
-    
+    var marker1 = L.AwesomeMarkers.icon({
+      icon: 'user-circle',
+      prefix: 'fa',
+      iconColor: 'white',
+      markerColor: 'red'
+     });
+
   var layer_sakit = new L.GeoJSON.AJAX("layer/request_rumah_sakit.php",{ // sekarang perintahnya diawali dengan variabel
     style: function(feature){
     var fillColor, // ini style yang akan digunakan
@@ -145,8 +174,8 @@
             });
     }, //costum icon
     pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: greenIcon});
-        }
+            return L.marker(latlng, {icon: marker1});
+    }
     }).addTo(map);
 
   // PILIHAN BASEMAP YANG AKAN DITAMPILKAN
@@ -161,6 +190,7 @@
         "KOTA JOGYAKARTA": {
           "Rumah Sakit": layer_sakit,
           "Point": layer_point,
+          "Marker": mama,
           "Lannduse": layer_jogja
         }
         };
