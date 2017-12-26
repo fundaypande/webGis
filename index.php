@@ -38,20 +38,19 @@
   <div id="map"> <!-- ini id="map" bisa di ganti dengan nama yang di inginkan -->
   <script>
   // MENGATUR TITIK KOORDINAT TITIK TENGAN & LEVEL ZOOM PADA BASEMAP
-  var map = L.map('map').setView([-7.797068,110.370529], 1);
+  var map = L.map('map').setView([-7.797068,110.370529], 4);
 
   // MENAMPILKAN SKALA
   L.control.scale({imperial: false}).addTo(map);
 
   // ------------------- VECTOR ----------------------------
-
-  var layer_jogja = new L.GeoJSON.AJAX("layer/request_jogja.php",{ // sekarang perintahnya diawali dengan variabel
+  var layer_landuse = new L.GeoJSON.AJAX("layer/request_landuse.php",{ // sekarang perintahnya diawali dengan variabel
     style: function(feature){
     var fillColor, // ini style yang akan digunakan
             kode = feature.properties.id; // perwarnaan objek polygon berdasarkan kode kabupaten di dalam file geojson
-             if ( kode > 4 ) fillColor = "#ffd700";
+             if ( kode = 1 ) fillColor = "#D8AD00";
         // no data
-        return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
+        return { color: "#990900", dashArray: '2', weight: 1, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
       },
       onEachFeature: function(feature, layer){
       //layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
@@ -64,30 +63,22 @@
                 fillOpacity: 0.8
                 });
             layer.on('click', function(e){
-              layer.bindPopup("<center>" + feature.properties.nama + "</center> (" + e.latlng.lat + ", " + e.latlng.lng +")");
+              layer.bindPopup("<center>" + feature.properties.id + "</center> (" + e.latlng.lat + ", " + e.latlng.lng +")");
               //alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
             });
 
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
             }
-
                 info.update(layer.feature.properties);
             });
             layer.on('mouseout', function (e) {
-                layer_ADMINISTRASI.resetStyle(e.target); // isi dengan nama variabel dari layer
+                layer_landuse.resetStyle(e.target); // isi dengan nama variabel dari layer
                 info.update();
             });
     }
     }).addTo(map);
 
-    // var mama = function(){
-    //   L.marker([-77.76758238272801, 146.95312500000003]).addTo(map)
-    //         .bindPopup("<b>Wilujeng sumping!</b> Ieu teh Kota Bandung.");
-    //   L.marker([-66.23145747862573, 94.921875]).addTo(map)
-    //         .bindPopup("Kota Bandung");
-    // }
-    // mama();
     var mama = [
       L.marker([-77.76758238272801, 146.95312500000003]).addTo(map)
             .bindPopup("<b>Wilujeng sumping!</b> Ieu teh Kota Bandung."),
@@ -104,7 +95,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
-        layer.bindPopup("<center>" + feature.properties.nama + "</center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
+        layer.bindPopup("<center>" + feature.properties.nama + "</center> <div> <img src='"+ feature.properties.url +"' /> </div>" + layer.getLatLng() +" " +feature.properties.url), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
                   this.setStyle({
@@ -117,26 +108,15 @@
               if (!L.Browser.ie && !L.Browser.opera) {
                   layer.bringToFront();
               }
-
                   info.update(layer.feature.properties);
               });
               layer.on('mouseout', function (e) {
-                  layer_ADMINISTRASI.resetStyle(e.target); // isi dengan nama variabel dari layer
+                  layer_point.resetStyle(e.target); // isi dengan nama variabel dari layer
                   info.update();
               });
       }
       }).addTo(map);
 
-  var greenIcon = L.icon({
-        iconUrl: 'img/hospital.png',
-        shadowUrl: 'leaflet/lf/images/marker-shadow.png',
-
-        iconSize:     [20, 50], // size of the icon
-        shadowSize:   [15, 40], // size of the shadow
-        iconAnchor:   [15, 60], // point of the icon which will correspond to marker's location
-        shadowAnchor: [4, 62],  // the same for the shadow
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-    });
     var marker1 = L.AwesomeMarkers.icon({
       icon: 'user-circle',
       prefix: 'fa',
@@ -144,40 +124,43 @@
       markerColor: 'red'
      });
 
-  var layer_sakit = new L.GeoJSON.AJAX("layer/request_rumah_sakit.php",{ // sekarang perintahnya diawali dengan variabel
-    style: function(feature){
-    var fillColor, // ini style yang akan digunakan
-            kode = feature.properties.id; // perwarnaan objek polygon berdasarkan kode kabupaten di dalam file geojson
-             if ( kode > 1 ) fillColor = "#ffd700";
-        // no data
-        return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
-      },
-      onEachFeature: function(feature, layer){
-      layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
-      that = this; // perintah agar menghasilkan efek hover pada objek layer
-            layer.on('mouseover', function (e) {
-                this.setStyle({
-                weight: 2,
-                color: '#72152b',
-                dashArray: '',
-                fillOpacity: 0.8
-                });
+    var layer_wisata = new L.GeoJSON.AJAX("layer/request_wisata.php",{ // sekarang perintahnya diawali dengan variabel
+      style: function(feature){
+      var fillColor, // ini style yang akan digunakan
+              kode = feature.properties.id; // perwarnaan objek polygon berdasarkan kode kabupaten di dalam file geojson
+               if ( kode > 1 ) fillColor = "#ffd700";
+          // no data
+          return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
+        },
+        onEachFeature: function(feature, layer){
+        layer.bindPopup("<center>" + feature.properties.nama + " <div> <img src='"+ feature.properties.url +"' height='150px' /> </div> </center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
+        that = this; // perintah agar menghasilkan efek hover pada objek layer
+              layer.on('mouseover', function (e) {
+                  this.setStyle({
+                  weight: 2,
+                  color: '#72152b',
+                  dashArray: '',
+                  fillOpacity: 0.8
+                  });
 
-            if (!L.Browser.ie && !L.Browser.opera) {
-                layer.bringToFront();
-            }
-                info.update(layer.feature.properties);
-            });
-            layer.on('mouseout', function (e) {
-                layer_ADMINISTRASI.resetStyle(e.target); // isi dengan nama variabel dari layer
-                info.update();
-            });
-    }, //costum icon
-    pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: marker1});
-    }
-    }).addTo(map);
+              if (!L.Browser.ie && !L.Browser.opera) {
+                  layer.bringToFront();
+              }
+                  info.update(layer.feature.properties);
+              });
+              layer.on('mouseout', function (e) {
+                  layer_wisata.resetStyle(e.target); // isi dengan nama variabel dari layer
+                  info.update();
+              });
+      }, //costum icon
+      pointToLayer: function (feature, latlng) {
+              return L.marker(latlng, {icon: marker1});
+      }
+      }).addTo(map);
 
+  var marker = new L.marker([59.5343180010956, 96.85546875000001], { opacity: 0 }); //opacity may be set to zero
+  marker.bindTooltip("New My Label", {permanent: true, className: "my-label", offset: [0, 0] });
+  marker.addTo(map);
   // PILIHAN BASEMAP YANG AKAN DITAMPILKAN
   var baseLayers = {
   //'Esri.WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap').addTo(map),
@@ -188,10 +171,9 @@
   // membuat pilihan untuk menampilkan layer
   var overlays = {
         "KOTA JOGYAKARTA": {
-          "Rumah Sakit": layer_sakit,
           "Point": layer_point,
-          "Marker": mama,
-          "Lannduse": layer_jogja
+          "Objek WIsata" : layer_wisata,
+          "Landuse 2": layer_landuse
         }
         };
   var options = {
