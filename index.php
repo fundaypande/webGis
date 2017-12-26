@@ -24,7 +24,6 @@
    <link rel="stylesheet" href="leaflet/awesome-marker/dist/leaflet.awesome-markers.css">
    <script src="leaflet/awesome-marker/dist/leaflet.awesome-markers.js"></script>
 
-
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name='description' content='WebGIS info-geospasial.com menyajikan berbagai konten spasial ke dalam bentuk Website'/>
@@ -37,6 +36,17 @@
 
   <div id="map"> <!-- ini id="map" bisa di ganti dengan nama yang di inginkan -->
   <script>
+
+  var layer_permanent = $.getJSON("select.php", function (data) {
+          for (var i = 0; i < data.length; i++) {
+            var location = new L.LatLng(data[i].lat, data[i].long);
+            var name = data[i].judul;
+            var marker = new L.Marker(location).addTo(map)
+            .bindPopup("<div style='text-align: center; margin-left: auto; margin-right: auto;'>"+ name +" <br /> <a href='delete.php?id="+ data[i].long +"'>Delete Marker</a>  </div>", {maxWidth: '400'});
+          }
+        });
+
+
   // MENGATUR TITIK KOORDINAT TITIK TENGAN & LEVEL ZOOM PADA BASEMAP
   var map = L.map('map').setView([-7.797068,110.370529], 4);
 
@@ -63,28 +73,18 @@
                 fillOpacity: 0.8
                 });
             layer.on('click', function(e){
-              layer.bindPopup("<center>" + feature.properties.id + "</center> (" + e.latlng.lat + ", " + e.latlng.lng +")");
+              layer.bindPopup("<center>" + feature.properties.id + "</center> <a href='upload.php?lang=" + e.latlng.lat + "&long=" + e.latlng.lng +"'>Tambah Marker</a> (" + e.latlng.lat + ", " + e.latlng.lng +")");
               //alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
             });
 
-            if (!L.Browser.ie && !L.Browser.opera) {
-                layer.bringToFront();
-            }
-                info.update(layer.feature.properties);
+
             });
             layer.on('mouseout', function (e) {
                 layer_landuse.resetStyle(e.target); // isi dengan nama variabel dari layer
-                info.update();
+                //info.update();
             });
     }
     }).addTo(map);
-
-    var mama = [
-      L.marker([-77.76758238272801, 146.95312500000003]).addTo(map)
-            .bindPopup("<b>Wilujeng sumping!</b> Ieu teh Kota Bandung."),
-      L.marker([-66.23145747862573, 94.921875]).addTo(map)
-            .bindPopup("Kota Bandung")
-    ];
 
     var layer_point = new L.GeoJSON.AJAX("layer/request_point.php",{ // sekarang perintahnya diawali dengan variabel
       style: function(feature){
@@ -105,14 +105,11 @@
                   fillOpacity: 0.8
                   });
 
-              if (!L.Browser.ie && !L.Browser.opera) {
-                  layer.bringToFront();
-              }
-                  info.update(layer.feature.properties);
+
               });
               layer.on('mouseout', function (e) {
                   layer_point.resetStyle(e.target); // isi dengan nama variabel dari layer
-                  info.update();
+                  //info.update();
               });
       }
       }).addTo(map);
@@ -133,7 +130,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
-        layer.bindPopup("<center>" + feature.properties.nama + " <div> <img src='"+ feature.properties.url +"' height='150px' /> </div> </center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
+        layer.bindPopup("<center>" + feature.properties.nama + " <div> <img src='"+ feature.properties.url +"' height='150px' /> <br /> <a href='https://www.google.co.id/search?q="+ feature.properties.nama +"' target='_blank'>Cari Informasi Lebih Lanjut</a> </div> </center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
                   this.setStyle({
@@ -142,15 +139,10 @@
                   dashArray: '',
                   fillOpacity: 0.8
                   });
-
-              if (!L.Browser.ie && !L.Browser.opera) {
-                  layer.bringToFront();
-              }
-                  info.update(layer.feature.properties);
               });
               layer.on('mouseout', function (e) {
                   layer_wisata.resetStyle(e.target); // isi dengan nama variabel dari layer
-                  info.update();
+                  //info.update();
               });
       }, //costum icon
       pointToLayer: function (feature, latlng) {
@@ -158,6 +150,7 @@
       }
       }).addTo(map);
 
+  //make label
   var marker = new L.marker([59.5343180010956, 96.85546875000001], { opacity: 0 }); //opacity may be set to zero
   marker.bindTooltip("New My Label", {permanent: true, className: "my-label", offset: [0, 0] });
   marker.addTo(map);
@@ -166,6 +159,8 @@
   //'Esri.WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap').addTo(map),
   //'Esri WorldImagery': L.tileLayer.provider('Esri.WorldImagery')
   };
+
+
   // MENAMPILKAN TOOLS UNTUK MEMILIH BASEMAP
   //L.control.layers(baseLayers,{}).addTo(map);
   // membuat pilihan untuk menampilkan layer
@@ -173,6 +168,7 @@
         "KOTA JOGYAKARTA": {
           "Point": layer_point,
           "Objek WIsata" : layer_wisata,
+          "Layer Permanen" : layer_permanent,
           "Landuse 2": layer_landuse
         }
         };
@@ -183,5 +179,28 @@
   L.control.groupedLayers(baseLayers, overlays, options).addTo(map);
   </script>
   </div>
+
+
 </body>
 </html>
+<?php
+require_once 'connect.php';
+
+
+require_once 'index.php';
+
+$result = pg_query($dbconn, "SELECT * FROM permanent_marker");
+if (!$result) {
+    echo "An error occurred.\n";
+    exit;
+}
+
+$arr = pg_fetch_all($result);
+
+echo $arr[0][judul];
+
+echo "<pre>";
+print_r($arr);
+echo "</pre>";
+
+ ?>
