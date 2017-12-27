@@ -21,3 +21,11 @@ body {
   width: 100px;
   height: 100px;
 }
+.form-section{
+  width : 500px;
+  background-color: #82D0B1;
+  min-height: 500px;
+  padding: 10px 20px 10px 20px;
+  color : #ffffff;
+  margin : 0 auto;
+}

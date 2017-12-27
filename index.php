@@ -73,7 +73,7 @@
                 fillOpacity: 0.8
                 });
             layer.on('click', function(e){
-              layer.bindPopup("<center>" + feature.properties.id + "</center> <a href='upload.php?lang=" + e.latlng.lat + "&long=" + e.latlng.lng +"'>Tambah Marker</a> (" + e.latlng.lat + ", " + e.latlng.lng +")");
+              layer.bindPopup("<center>" + feature.properties.nama + " <br /> <a href='upload.php?lang=" + e.latlng.lat + "&long=" + e.latlng.lng +"'>Tambah Marker</a> </center>");
               //alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
             });
 
@@ -95,7 +95,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
-        layer.bindPopup("<center>" + feature.properties.nama + "</center> <div> <img src='"+ feature.properties.url +"' /> </div>" + layer.getLatLng() +" " +feature.properties.url), // popup yang akan ditampilkan diambil dari filed kab_kot
+        layer.bindPopup("<center>" + feature.properties.nama + "</center> <div> </div>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
                   this.setStyle({
@@ -183,24 +183,3 @@
 
 </body>
 </html>
-<?php
-require_once 'connect.php';
-
-
-require_once 'index.php';
-
-$result = pg_query($dbconn, "SELECT * FROM permanent_marker");
-if (!$result) {
-    echo "An error occurred.\n";
-    exit;
-}
-
-$arr = pg_fetch_all($result);
-
-echo $arr[0][judul];
-
-echo "<pre>";
-print_r($arr);
-echo "</pre>";
-
- ?>
