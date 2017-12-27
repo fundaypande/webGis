@@ -124,8 +124,8 @@ body {
   margin-left:5px;
 }
 .menu-footer ul li a:link{
-              color: #e6e6fa;
-              text-decoration: none;
+              color: #ffffff !important;
+              text-decoration: none !important;
 }
 .menu-footer ul li a:visited{
                   color: #e6e6fa;
@@ -152,4 +152,8 @@ body {
   float:left;
   margin-left:2%;
   margin-top:0.8%;
+ }
+ #footer a {
+   color: #e6e6fa;
+   text-decoration: none;
  }
