@@ -8,15 +8,18 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="leaflet/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style2.css" />
 
     <title>Tambah Marker</title>
   </head>
   <body>
+    <?php include 'header.php'; ?>
+    <div class="section">
+
+
     <div class="container">
       <center><h2>Set Marker</h2></center>
     <div class="form-section">
-
 
     <form method="post" action="insert.php">
       <div class="row">
@@ -44,5 +47,8 @@
   </div>
     </div>
   </div>
+  </div>
+  <?php include 'footer.php'; ?>
   </body>
+
 </html>

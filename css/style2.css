@@ -26,31 +26,15 @@ body {
 }
 .form-section{
   width : 500px;
+
   background-color: #82D0B1;
-  min-height: 500px;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 20px 50px 20px;
   color : #ffffff;
   margin : 0 auto;
+      border-radius: 10px;
 }
-input[type=text] {
- width: 27px;
- margin-left: -1px;
- margin-bottom: -25px;
- box-sizing: border-box;
- border: 1px solid #ccc;
- border-radius: 4px;
- font-size: 16px;
- background-color: white;
- background-image: url('../img/search-icon.png');
- padding: 5px 3px 3px 23px;
- background-position: 3px 3px;
- box-shadow: 0 1px 2px rgba(0,0,0,0.4);
- background-repeat: no-repeat;
- -webkit-transition: width 0.2s ease-in-out;
- transition: width 0.2s ease-in-out;
-}
-input[type=text]:focus {
-    width: 100%;
+.section{
+  height: 85%;
 }
 #header {
   height:10%;

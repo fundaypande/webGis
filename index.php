@@ -13,11 +13,13 @@
   <script src="leaflet/groupLayers/src/leaflet.groupedlayercontrol.js"></script>
 
   <!--memanggil plugin pencarian, Json dan Extend all-->
-  <link rel="stylesheet" href="leaflet/leaflet-search-master/src/leaflet-search.css"/>
+
   <link rel="stylesheet" href="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.css" />
   <script src="leaflet/leaflet-ajax/dist/leaflet.ajax.js"></script>
-  <script src="leaflet/leaflet-search-master/src/leaflet-search.js"></script>
+
   <script src="leaflet/leaflet.defaultextent-master/dist/leaflet.defaultextent.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
 
 <!-- memanggil awesome marker -->
    <link rel="stylesheet" href="leaflet/font-awesome/css/font-awesome.min.css">
@@ -33,9 +35,11 @@
 </head>
 <body>
 <!-- bagian ini akan di isi konten utama -->
+<?php include 'header.php'; ?>
 
   <div id="map"> <!-- ini id="map" bisa di ganti dengan nama yang di inginkan -->
   <script>
+  var items = [];
 
   var layer_permanent = $.getJSON("select.php", function (data) {
           for (var i = 0; i < data.length; i++) {
@@ -45,6 +49,7 @@
             .bindPopup("<div style='text-align: center; margin-left: auto; margin-right: auto;'>"+ name +" <br /> <a href='delete.php?id="+ data[i].long +"'>Delete Marker</a>  </div>", {maxWidth: '400'});
           }
         });
+
 
 
   // MENGATUR TITIK KOORDINAT TITIK TENGAN & LEVEL ZOOM PADA BASEMAP
@@ -63,6 +68,7 @@
         return { color: "#990900", dashArray: '2', weight: 1, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
       },
       onEachFeature: function(feature, layer){
+        items.push(layer);
       //layer.bindPopup("<center>" + feature.properties.nama + "</center>"), // popup yang akan ditampilkan diambil dari filed kab_kot
       that = this; // perintah agar menghasilkan efek hover pada objek layer
             layer.on('mouseover', function (e) {
@@ -95,6 +101,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
+          items.push(layer);
         layer.bindPopup("<center>" + feature.properties.nama + "</center> <div> </div>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
@@ -130,6 +137,7 @@
           return { color: "#999", dashArray: '3', weight: 2, fillColor: fillColor, fillOpacity: 1 }; // style border sertaa transparansi
         },
         onEachFeature: function(feature, layer){
+          items.push(layer);
         layer.bindPopup("<center>" + feature.properties.nama + " <div> <img src='"+ feature.properties.url +"' height='150px' /> <br /> <a href='https://www.google.co.id/search?q="+ feature.properties.nama +"' target='_blank'>Cari Informasi Lebih Lanjut</a> </div> </center>" + layer.getLatLng()), // popup yang akan ditampilkan diambil dari filed kab_kot
         that = this; // perintah agar menghasilkan efek hover pada objek layer
               layer.on('mouseover', function (e) {
@@ -149,6 +157,106 @@
               return L.marker(latlng, {icon: marker1});
       }
       }).addTo(map);
+
+
+
+      //ADD MENAMBAHKAN TOOL PENCARIAN
+      // SEARCH TOOL
+
+  function sortNama(a, b) {
+    var _a = a.feature.properties.nama; // nama field yang akan dijadikan acuan di dalam tool pencarian
+
+    var _b = b.feature.properties.nama; // nama field yang akan dijadikan acuan di dalam tool pencarian
+
+    if (_a < _b) {
+      return -1;
+    }
+    if (_a > _b) {
+      return 1;
+    }
+    return 0;
+  }
+
+  L.Control.Search = L.Control.extend({
+    options: {
+      // topright, topleft, bottomleft, bottomright
+      position: 'topleft',
+      placeholder: ' Search...'
+    },
+    initialize: function (options /*{ data: {...}  }*/) {
+      // constructor
+      L.Util.setOptions(this, options);
+    },
+    onAdd: function (map) {
+      // happens after added to map
+      var container = L.DomUtil.create('div', 'search-container');
+      this.form = L.DomUtil.create('form', 'form', container);
+      var group = L.DomUtil.create('div', 'form-group', this.form);
+      this.input = L.DomUtil.create('input', 'form-control input-sm', group);
+      this.input.type = 'text';
+      this.input.placeholder = this.options.placeholder;
+      this.results = L.DomUtil.create('div', 'list-group', group);
+      L.DomEvent.addListener(this.input, 'keyup', _.debounce(this.keyup, 300), this);
+      L.DomEvent.addListener(this.form, 'submit', this.submit, this);
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    },
+    onRemove: function (map) {
+      // when removed
+      L.DomEvent.removeListener(this._input, 'keyup', this.keyup, this);
+      L.DomEvent.removeListener(form, 'submit', this.submit, this);
+    },
+    keyup: function(e) {
+      if (e.keyCode === 38 || e.keyCode === 40) {
+        // do nothing
+      } else {
+        this.results.innerHTML = '';
+        if (this.input.value.length > 2) {
+          var value = this.input.value;
+          var results = _.take(_.filter(this.options.data, function(x) {
+            return x.feature.properties.nama.toUpperCase().indexOf(value.toUpperCase()) > -1;
+          }).sort(sortNama), 10);
+          _.map(results, function(x) {
+            var a = L.DomUtil.create('a', 'list-group-item');
+            a.href = '';
+            a.setAttribute('data-result-name', x.feature.properties.nama); // nama field yang akan dijadikan acuan di dalam tool pencarian
+
+            a.innerHTML = x.feature.properties.nama; // nama field yang akan dijadikan acuan di dalam tool pencarian
+
+            this.results.appendChild(a);
+            L.DomEvent.addListener(a, 'click', this.itemSelected, this);
+            return a;
+          }, this);
+        }
+      }
+    },
+    itemSelected: function(e) {
+      L.DomEvent.preventDefault(e);
+      var elem = e.target;
+      var value = elem.innerHTML;
+      this.input.value = elem.getAttribute('data-result-name');
+      var feature = _.find(this.options.data, function(x) {
+        return x.feature.properties.nama === this.input.value; // nama field yang akan dijadikan acuan di dalam tool pencarian
+
+      }, this);
+      if (feature) {
+        this._map.fitBounds(feature.getBounds());
+      }
+      this.results.innerHTML = '';
+    },
+    submit: function(e) {
+      L.DomEvent.preventDefault(e);
+    }
+  });
+
+  L.control.search = function(id, options) {
+    return new L.Control.Search(id, options);
+  }
+  L.control.search({
+    data: items
+  }).addTo(map);
+
+  //end add map
 
   //make label
   var marker = new L.marker([59.5343180010956, 96.85546875000001], { opacity: 0 }); //opacity may be set to zero
@@ -179,7 +287,7 @@
   L.control.groupedLayers(baseLayers, overlays, options).addTo(map);
   </script>
   </div>
-
+<?php include 'footer.php'; ?>
 
 </body>
 </html>
