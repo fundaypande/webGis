@@ -103,7 +103,7 @@
        markerColor: 'red'
       });
      var marker_rumahsakit = L.AwesomeMarkers.icon({
-       icon: 'plus_circle',
+       icon: 'plus-circle',
        prefix: 'fa',
        iconColor: 'white',
        markerColor: 'green'
